@@ -2,7 +2,7 @@
   <img src="docs/assets/logo-512.png" alt="NEXUS WOT CLAN HUB" width="140">
 </p>
 
-<h1 align="center">NEXUS WOT CLAN HUB</h1>
+<h1 align="center">Nexus WoT Clan Hub</h1>
 
 <p align="center">
   <b>Dein Clan. Eine Zentrale.</b><br>
