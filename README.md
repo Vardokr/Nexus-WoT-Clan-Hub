@@ -29,16 +29,16 @@ NEXUS WOT CLAN HUB ist eine Windows-Anwendung zur Verwaltung und Organisation vo
 
 - **Dashboard:** Die wichtigsten Clan-Informationen auf einen Blick.
 - **Mitglieder & Personalakten:** Spielerwerte, Clan-Ränge, Notizen, Abwesenheiten und Discord-Kontaktdaten. Der Abgleich mit Wargaming läuft automatisch.
-- **Ankündigungen & Offiziers-Aufgaben:** Mitteilungen an den Clan und Aufgaben für die Führung, mit Windows-Benachrichtigung.
-- **Clan-Wächter:** Beobachtung von Clans und Erfassung von Austritten und Beitritten für das Recruiting.
-- **Recruiting & Probezeit:** Bewerbungen in Listen- und Board-Ansicht verwalten, neue Mitglieder durch die Probezeit begleiten.
-- **Spielersuche & Talent Scout:** Spieler finden und ihre Werte vergleichen.
-- **Anforderungschecker:** Spieler anhand konfigurierbarer Kriterien prüfen.
-- **Organisation:** Kalender, Teams, Ausbildung und Dienstgrade.
-- **Operationen:** Manöver, Turniere, Kampagnen, Bollwerk und Tank Intel.
-- **Statistiken:** Auswertungen zu Mitgliederwerten und Aktivität.
+- **Ankündigungen & Offiziers-Aufgaben:** Mitteilungen an den ganzen Clan, nur an Offiziere oder an ausgewählte Mitglieder, und Aufgaben für die Führung, mit Windows-Benachrichtigung.
+- **Neue Mitglieder, Dienstgrade & Inaktivität:** Probezeit und Ausbildung begleiten, Beförderungen planen, Inaktive mit Verwarnungsstufen erkennen.
+- **Clan-Wächter:** Austritte und Beitritte beobachteter Clans, bewertet nach euren Anforderungsprofilen. Mehrfachauswahl, Blacklist mit Grund, CSV mit allen Werten.
+- **Scouting:** Spieler nachschlagen und gegen eure Profile prüfen, clanlose Spieler nach Namensanfängen finden.
+- **Recruiting:** Bewerbungen als Liste oder Board, Spielersuche beim Anlegen, Sortieren und Hinweis auf lange liegende Bewerbungen.
+- **Operationen:** Kalender, Tank Intel, Meet, Manöver, Turniere, Teams und Bollwerk (Pflicht-Tracker mit Verlauf, Industrieressourcen).
+- **Statistiken, Vorlagen & Erfolge:** Auswertungen, Nachrichtenvorlagen mit Platzhaltern und Erfolge für aktive Mitglieder.
 - **Änderungsverlauf:** Wer hat wann was geändert, auch bei gelöschten Einträgen.
-- **Discord-Anbindung:** Benachrichtigungen über konfigurierbare Webhooks.
+- **Discord-Bot:** Der NEXUS-Bot legt eigene Kanäle an und sendet alle Meldungen dorthin; ohne Bot gehen Webhooks.
+- **Clan-Verbund:** Ein Hauptclan führt bis zu vier Zweitclans mit einem Konto.
 - **Live-Daten:** Änderungen anderer Mitglieder erscheinen sofort, ohne Neuladen.
 
 ## Download & Installation
