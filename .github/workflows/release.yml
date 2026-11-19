@@ -1,0 +1,137 @@
+# Läuft, sobald ein Release veröffentlicht wird:
+#  1. Linux-Version bauen: holt den App-Code aus dem privaten Repository Vardokr/Nexus-Backup (nur lesen),
+#     baut das AppImage und hängt AppImage + latest-linux.yml an dieses Release (für Download und Auto-Update).
+#  2. Discord: kündigt das Release an, mit Windows- und (falls gebaut) Linux-Link. Auch wenn der Linux-Bau scheitert.
+#
+# Benötigte Secrets in diesem Repository:
+#  - BACKUP_READ_TOKEN: Fine-grained Token, nur für Nexus-Backup, Berechtigung „Contents: Read-only“
+#  - DISCORD_RELEASE_WEBHOOK: wie bisher
+#
+# Von Hand (Actions → „Release: Linux-Version und Discord“ → Run workflow), z. B. wenn der Linux-Bau nachgeholt werden soll.
+name: 'Release: Linux-Version und Discord'
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release-Tag, z. B. v2.9.0'
+        required: true
+      announce:
+        description: 'Danach auf Discord ankündigen'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: App-Code aus Nexus-Backup holen
+        uses: actions/checkout@v4
+        with:
+          repository: Vardokr/Nexus-Backup
+          ref: main
+          token: ${{ secrets.BACKUP_READ_TOKEN }}
+          path: app
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Version prüfen
+        working-directory: app
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$TAG" ] && [ "$version" != "$TAG" ]; then
+            echo "::error::Der Code in Nexus-Backup hat Version $version, das Release ist $TAG. Erst den passenden Stand hochladen, dann von Hand neu starten."
+            exit 1
+          fi
+
+      - name: Abhängigkeiten installieren
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+
+      - name: AppImage bauen
+        working-directory: app
+        run: npm run electron:build:linux
+
+      - name: An das Release anhängen
+        working-directory: app
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" dist/*.AppImage dist/latest-linux.yml --clobber --repo "$GITHUB_REPOSITORY"
+
+  announce:
+    needs: linux
+    if: ${{ always() && (github.event_name == 'release' || inputs.announce) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release auf Discord ankündigen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "Missing repository secret: DISCORD_RELEASE_WEBHOOK" >&2
+            exit 1
+          fi
+          # Aktuellen Stand lesen, damit die gerade angehängte Linux-Datei dabei ist.
+          export RELEASE_JSON="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json name,tagName,url,body,assets)"
+
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          release = json.loads(os.environ["RELEASE_JSON"])
+          name = release.get("name") or release["tagName"]
+          release_url = release["url"]
+          notes = (release.get("body") or "").strip()
+          if len(notes) > 3000:
+              notes = notes[:2997].rstrip() + "..."
+
+          assets = release.get("assets") or []
+          installers = [asset for asset in assets if asset.get("name", "").lower().endswith(".exe") and "setup" in asset.get("name", "").lower()]
+          if not installers:
+              installers = [asset for asset in assets if asset.get("name", "").lower().endswith(".exe")]
+          installer_url = installers[0]["url"] if installers else release_url
+          download = f"[Windows-Setup herunterladen]({installer_url})"
+          # Linux-Link nur, wenn das Release eine AppImage-Datei enthält.
+          appimages = [asset for asset in assets if asset.get("name", "").lower().endswith(".appimage")]
+          if appimages:
+              download += f"\n[Linux (AppImage) herunterladen]({appimages[0]['url']})"
+          description = notes or "Die neue Version von NEXUS HUB ist verfügbar."
+          payload = {
+              "embeds": [{
+                  "title": f"NEXUS HUB {name} ist verfügbar",
+                  "url": release_url,
+                  "description": description,
+                  "color": 0x3D87F5,
+                  "fields": [
+                      {"name": "Download", "value": download, "inline": True},
+                      {"name": "Release-Notizen", "value": f"[Auf GitHub ansehen]({release_url})", "inline": True},
+                  ],
+                  "footer": {"text": "NEXUS HUB · unabhängiges Community-Projekt, nicht mit Wargaming verbunden"},
+              }],
+              "allowed_mentions": {"parse": []},
+          }
+          request = urllib.request.Request(
+              os.environ["DISCORD_WEBHOOK"],
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json", "User-Agent": "NEXUS-HUB-Release-Announcer"},
+              method="POST",
+          )
+          with urllib.request.urlopen(request, timeout=20) as response:
+              if response.status not in (200, 204):
+                  raise RuntimeError(f"Discord webhook returned HTTP {response.status}")
+              print("Release announcement sent to Discord.")
+          PY
