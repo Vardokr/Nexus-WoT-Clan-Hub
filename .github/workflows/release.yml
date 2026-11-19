@@ -16,8 +16,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release-Tag, z. B. v2.9.0'
-        required: true
+        description: 'Release-Tag, z. B. v2.9.0 (leer lassen = neuestes Release)'
+        required: false
+        default: ''
       announce:
         description: 'Danach auf Discord ankündigen'
         type: boolean
@@ -26,13 +27,32 @@ on:
 permissions:
   contents: write
 
-env:
-  TAG: ${{ github.event.release.tag_name || inputs.tag }}
-
 jobs:
   linux:
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
+      - name: Release bestimmen
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          tag="$EVENT_TAG"
+          if [ -z "$tag" ] && [ -n "$INPUT_TAG" ]; then
+            # Auch „NEXUS HUB 2.8.0“ oder „2.8.0“ wird als v2.8.0 verstanden.
+            version=$(echo "$INPUT_TAG" | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -n1)
+            [ -n "$version" ] && tag="v$version"
+            [[ "$tag" =~ ^v[0-9]+\.[0-9]+$ ]] && tag="$tag.0"
+          fi
+          [ -z "$tag" ] && tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json tagName >/dev/null || { echo "::error::Kein Release mit dem Tag $tag gefunden."; exit 1; }
+          echo "Release: $tag"
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
       - name: App-Code aus Nexus-Backup holen
         uses: actions/checkout@v4
         with:
@@ -58,11 +78,24 @@ jobs:
 
       - name: Abhängigkeiten installieren
         working-directory: app
-        run: npm ci --no-audit --no-fund
+        run: |
+          npm ci --no-audit --no-fund
+          # Das Electron-Programm für Linux sicher holen (der Bau nutzt node_modules/electron/dist).
+          node node_modules/electron/install.js
+          test -x node_modules/electron/dist/electron || { echo "::error::Electron für Linux fehlt nach der Installation."; exit 1; }
 
       - name: AppImage bauen
         working-directory: app
-        run: npm run electron:build:linux
+        run: |
+          set -o pipefail
+          # Bei einem Fehler die letzten Zeilen als Hinweis anzeigen (ohne Anmeldung unter „Annotations“ lesbar).
+          if ! npm run electron:build:linux 2>&1 | tee build.log; then
+            msg=$(tail -n 25 build.log | sed 's/\x1b\[[0-9;]*m//g')
+            msg="${msg//'%'/'%25'}"
+            msg="${msg//$'\n'/'%0A'}"
+            echo "::error title=Linux-Bau fehlgeschlagen::$msg"
+            exit 1
+          fi
 
       - name: An das Release anhängen
         working-directory: app
@@ -79,6 +112,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+          TAG: ${{ needs.linux.outputs.tag || github.event.release.tag_name }}
         run: |
           if [ -z "$DISCORD_WEBHOOK" ]; then
             echo "Missing repository secret: DISCORD_RELEASE_WEBHOOK" >&2
