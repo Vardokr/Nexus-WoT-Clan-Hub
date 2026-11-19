@@ -10,10 +10,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Vardokr/nexus-hub-releases/releases/latest"><b>Download</b></a> ·
+  <a href="https://github.com/Vardokr/Nexus-WoT-Clan-Hub/releases/latest"><b>Download</b></a> ·
   <a href="#ersteinrichtung">Ersteinrichtung</a> ·
   <a href="#umstieg-von-version-24-oder-älter">Umstieg von 2.4</a> ·
-  <a href="https://github.com/Vardokr/nexus-hub-releases/issues">Fehler melden</a>
+  <a href="https://github.com/Vardokr/Nexus-WoT-Clan-Hub/issues">Fehler melden</a>
 </p>
 
 <p align="center">
@@ -23,13 +23,13 @@
 
 ---
 
-NEXUS WOT CLAN HUB ist eine Windows-Anwendung zur Verwaltung und Organisation von World-of-Tanks-Clans. Mitgliederverwaltung, Recruiting und Einsatzplanung kommen in einer gemeinsamen Oberfläche zusammen. Alle Daten liegen auf dem zentralen NEXUS-Server: keine eigene Datenbank, keine eigenen Schlüssel, Anmeldung nur mit Wargaming.
+NEXUS WOT CLAN HUB ist eine Anwendung für Windows und Linux zur Verwaltung und Organisation von World-of-Tanks-Clans. Mitgliederverwaltung, Recruiting und Einsatzplanung kommen in einer gemeinsamen Oberfläche zusammen. Alle Daten liegen auf dem zentralen NEXUS-Server: keine eigene Datenbank, keine eigenen Schlüssel, Anmeldung nur mit Wargaming.
 
 ## Funktionen
 
 - **Dashboard:** Die wichtigsten Clan-Informationen auf einen Blick.
 - **Mitglieder & Personalakten:** Spielerwerte, Clan-Ränge, Notizen, Abwesenheiten und Discord-Kontaktdaten. Der Abgleich mit Wargaming läuft automatisch.
-- **Ankündigungen & Offiziers-Aufgaben:** Mitteilungen an den ganzen Clan, nur an Offiziere oder an ausgewählte Mitglieder, und Aufgaben für die Führung, mit Windows-Benachrichtigung.
+- **Ankündigungen & Offiziers-Aufgaben:** Mitteilungen an den ganzen Clan, nur an Offiziere oder an ausgewählte Mitglieder, und Aufgaben für die Führung, mit Desktop-Benachrichtigung.
 - **Neue Mitglieder, Dienstgrade & Inaktivität:** Probezeit und Ausbildung begleiten, Beförderungen planen, Inaktive mit Verwarnungsstufen erkennen.
 - **Clan-Wächter:** Austritte und Beitritte beobachteter Clans, bewertet nach euren Anforderungsprofilen. Mehrfachauswahl, Blacklist mit Grund, CSV mit allen Werten.
 - **Scouting:** Spieler nachschlagen und gegen eure Profile prüfen, clanlose Spieler nach Namensanfängen finden.
@@ -43,9 +43,9 @@ NEXUS WOT CLAN HUB ist eine Windows-Anwendung zur Verwaltung und Organisation vo
 
 ## Download & Installation
 
-1. Öffne die [Releases](https://github.com/Vardokr/nexus-hub-releases/releases).
-2. Lade die Datei `NEXUS-WOT-CLAN-HUB-<Version>-Setup.exe` herunter.
-3. Starte den Installer und folge den Anweisungen.
+1. Öffne die [Releases](https://github.com/Vardokr/Nexus-WoT-Clan-Hub/releases/latest).
+2. **Windows:** Lade `NEXUS-WOT-CLAN-HUB-<Version>-Setup.exe` herunter, starte den Installer und folge den Anweisungen.
+3. **Linux** (auch Steam Deck im Desktop-Modus): Lade `NEXUS-HUB-<Version>-x86_64.AppImage` herunter, markiere die Datei als ausführbar (Rechtsklick → Eigenschaften) und starte sie. Unter Ubuntu wird ggf. einmal das Paket `libfuse2` benötigt.
 
 Dieses Repository dient der Bereitstellung von Installationsdateien und Updates.
 
@@ -79,7 +79,7 @@ Bis Version 2.4 brauchte jeder Clan eine eigene Firebase-Datenbank. Ab Version 2
 
 ## Updates
 
-Die installierte Windows-Version sucht selbst nach Updates. Eine manuelle Prüfung findest du unter:
+Die installierte Windows-Version und die Linux-AppImage suchen selbst nach Updates. Eine manuelle Prüfung findest du unter:
 
 **Einstellungen → App Info → Nach Updates suchen**
 
@@ -95,7 +95,7 @@ Mit **Strg + Umschalt + L** öffnest du das Diagnoseprotokoll. Bei einem Fehlerb
 - Kurze Beschreibung und Schritte zum Nachstellen
 - Screenshot oder relevanter Diagnoseauszug
 
-[Fehler melden oder Verbesserung vorschlagen](https://github.com/Vardokr/nexus-hub-releases/issues)
+[Fehler melden oder Verbesserung vorschlagen](https://github.com/Vardokr/Nexus-WoT-Clan-Hub/issues)
 
 ## Entwicklung unterstützen
 

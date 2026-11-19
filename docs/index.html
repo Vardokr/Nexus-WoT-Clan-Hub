@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NEXUS WOT CLAN HUB – Clan Operations Center für World of Tanks</title>
-<meta name="description" content="NEXUS WOT CLAN HUB ist die Windows-App für World-of-Tanks-Clans: Mitgliederverwaltung, Recruiting und Einsatzplanung in einer Oberfläche, ohne eigene Datenbank.">
+<meta name="description" content="NEXUS WOT CLAN HUB ist die App für World-of-Tanks-Clans (Windows und Linux): Mitgliederverwaltung, Recruiting und Einsatzplanung in einer Oberfläche, ohne eigene Datenbank.">
 <meta property="og:title" content="NEXUS WOT CLAN HUB – Clan Operations Center">
 <meta property="og:description" content="Mitglieder, Recruiting und Einsatzplanung für World of Tanks – an einem Ort.">
 <meta property="og:image" content="assets/logo-512.png">
@@ -87,12 +87,13 @@ footer a{color:var(--accent)}
 <div class="hero"><div class="wrap">
  <span class="eyebrow">CLAN OPERATIONS CENTER · WORLD OF TANKS</span>
  <h1>Dein Clan.<br><em>Eine Zentrale.</em></h1>
- <p class="lead">Mitgliederverwaltung, Recruiting und Einsatzplanung für World-of-Tanks-Clans – übersichtlich in einer Windows-App. Ohne eigene Datenbank: Anmelden mit Wargaming genügt.</p>
+ <p class="lead">Mitgliederverwaltung, Recruiting und Einsatzplanung für World-of-Tanks-Clans – übersichtlich in einer App für Windows und Linux. Ohne eigene Datenbank: Anmelden mit Wargaming genügt.</p>
  <div class="cta">
-  <a class="btn primary js-releases" href="#">Aktuelle Version herunterladen</a>
+  <a class="btn primary js-releases js-dl-windows" href="#">Für Windows herunterladen</a>
+  <a class="btn ghost js-releases js-dl-linux" href="#">Für Linux (AppImage)</a>
   <a class="btn ghost js-repo" href="#">Auf GitHub ansehen</a>
  </div>
- <p class="ver">Windows · Installer mit automatischen Updates · <span class="js-version">Version 2.8</span></p>
+ <p class="ver">Windows-Setup oder Linux-AppImage (auch Steam Deck) · automatische Updates · <span class="js-version">Version 2.8</span></p>
  <div class="shot"><img src="assets/dashboard.webp" alt="Dashboard von NEXUS WOT CLAN HUB mit Mitgliederzahl, Aktivität und Recruiting" width="1440" height="900"></div>
  <p class="cap">Beispielansicht mit Demodaten</p>
 </div></div>
@@ -137,7 +138,7 @@ footer a{color:var(--accent)}
  <h2>So geht's los</h2>
  <p class="sub">Keine eigene Datenbank, keine Schlüssel. Ein Assistent führt beim ersten Start durch die Einrichtung.</p>
  <div class="steps">
-  <div class="step"><h3>Installieren</h3><p>Setup herunterladen und installieren. Neue Versionen kommen danach automatisch als Update.</p></div>
+  <div class="step"><h3>Installieren</h3><p>Windows: Setup herunterladen und installieren. Linux: AppImage herunterladen, als ausführbar markieren und starten. Neue Versionen kommen danach automatisch als Update.</p></div>
   <div class="step"><h3>Clan aktivieren</h3><p>Kommandant oder Stellvertreter wählt „Ich leite den Clan“, meldet sich mit Wargaming an und erhält den Clan-Code <code>XXXX-XXXX-XXXX</code>.</p></div>
   <div class="step"><h3>Mitglieder treten bei</h3><p>Mitglieder wählen „Ich bin Mitglied“, geben den Clan-Code ein und melden sich mit Wargaming an. Fertig.</p></div>
  </div>
@@ -187,7 +188,17 @@ footer a{color:var(--accent)}
   if(repo){
     fetch('https://api.github.com/repos/'+repo.split('github.com/')[1]+'/releases/latest',{headers:{Accept:'application/vnd.github+json'}})
       .then(function(r){return r.ok?r.json():null})
-      .then(function(r){ if(r&&r.tag_name){ var v=String(r.tag_name).replace(/^v/,'').replace(/\.0$/,''); document.querySelectorAll('.js-version').forEach(function(e){e.textContent='Version '+v}); } })
+      .then(function(r){
+        if(!r||!r.tag_name) return;
+        var v=String(r.tag_name).replace(/^v/,'').replace(/\.0$/,'');
+        document.querySelectorAll('.js-version').forEach(function(e){e.textContent='Version '+v});
+        // Direkt-Downloads der aktuellen Dateien; ohne passende Datei bleibt der Link auf der Release-Seite.
+        var assets=r.assets||[];
+        var exe=assets.filter(function(a){return /setup\.exe$/i.test(a.name)})[0];
+        var app=assets.filter(function(a){return /\.appimage$/i.test(a.name)})[0];
+        if(exe) set('.js-dl-windows',exe.browser_download_url);
+        if(app) set('.js-dl-linux',app.browser_download_url);
+      })
       .catch(function(){});
   }
 })();
